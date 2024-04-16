@@ -1,6 +1,6 @@
 import os
 from flask import (
-  Flask, Blueprint
+  Flask, Blueprint, send_from_directory
 )
 from flask_pymongo import PyMongo
 from flask_json import FlaskJSON
@@ -33,10 +33,14 @@ def create_app(test_config=None):
   # JSON ENCODING
   json = FlaskJSON(app)
 
-  # a simple page that says hello
-  @app.route('/hello')
-  def hello():
-    return 'Hello, World!'
+  # serving built frontend
+  @app.get('/')
+  def home():
+      return send_from_directory('static', 'index.html')
+
+  @app.get('/<path:path>')
+  def static_files(path):
+      return send_from_directory('static', path)
 
   from .routes import auth
 

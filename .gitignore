@@ -1,7 +1,6 @@
 instance
 instance/*
-server/__pycache__
-server/__pycache__/*
+**/__pycache__
 server/static
 .venv
 client/node_modules

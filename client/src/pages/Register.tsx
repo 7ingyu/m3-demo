@@ -1,12 +1,12 @@
 import { RegForm } from "../components";
 
-function Login() {
+function Register() {
   return (
     <div>
-      <h1>Login</h1>
+      <h1>Register Now</h1>
       <RegForm />
     </div>
   )
 }
 
-export default Login
+export default Register

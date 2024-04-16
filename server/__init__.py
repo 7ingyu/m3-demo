@@ -27,8 +27,9 @@ def create_app(test_config=None):
     pass
 
   # DATABASE
-  app.config["MONGO_URI"] = "mongodb://localhost:27017/myDatabase"
-  mongo = PyMongo(app)
+  from .db.connection import mongo
+  app.config["MONGO_URI"] = os.environ.get("MONGO_URI")
+  mongo.init_app(app)
 
   # JSON ENCODING
   json = FlaskJSON(app)

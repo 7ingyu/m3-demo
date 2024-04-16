@@ -1,10 +1,12 @@
 import functools
 
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, request, session, url_for
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_json import FlaskJSON, JsonError, json_response, as_json
+from flask_json import json_response
+
+from ..db.connection import mongo
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -15,8 +17,7 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        # g.user = mongo.db.users.find_one({'_id': user_id})
-        pass
+        g.user = mongo.db.users.find_one({'_id': user_id})
 
 @bp.post('/register')
 def register():
@@ -31,26 +32,21 @@ def register():
     error = 'Password is required.'
 
   if error is None:
-    # user = mongo.db.findOne({
-    #   'username': username,
-    # })
-    user = None
+    print('getting user nowwww')
+    user = mongo.db.users.find_one({
+      'username': username,
+    })
     if user is None:
-      #  user_id = mongo.db.users.insert_one({
-      #   'username': username,
-      #   'password': generate_password_hash(password)
-      # }).inserted_id
-      user = {
-         "id": "1",
-      }
-      # TODO: Convert to JSON response
-      # Also figure out how to add to session
+      user_id = str(mongo.db.users.insert_one({
+        'username': username,
+        'password': generate_password_hash(password)
+      }).inserted_id)
       session.clear()
-      session['user_id'] = user['id']
-      return json_response(user=user)
+      session['user_id'] = user_id
+      return json_response(id=user_id, status=201)
     else:
       error = f"User {username} is already registered."
-
+      return json_response(error=error, status=400)
   flash(error)
 
 @bp.post('/login')

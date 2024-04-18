@@ -6,36 +6,29 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_json import json_response
 
-from ..db.connection import mongo
+from ..db.connection import db
+from ..db.models.artwork import Artwork
 
 bp = Blueprint('artwork', __name__, url_prefix='/artwork')
 
-def encode_artwork (artwork):
-  data = {
-    'id': str(artwork.id),
-    'title': artwork.title,
-    'price': artwork.price,
-    'artist': encode_artist(artwork.artist),
-  }
-
-def encode_artist (artist):
-  data = {
-    'id': str(artist.id),
-    'name': artist.name,
-  }
-
 @bp.get('/all')
 def all():
-  artworks = mongo.db.artworks.find()
-  res = [encode_artwork(a) for a in list(artworks)]
-  return json_response(artworks=res)
+  artworks = db.session.execute(
+      db
+        .select(Artwork)
+    ).scalars()
+  return json_response(artworks=[a.as_dict() for a in artworks])
 
 @bp.post('/')
 def create():
   req = request.get_json()
-  mongo.db.users.insert_one({
-    'title': req['title'],
-    'price': req['price'],
-    'artist': req['artist'],
-  })
+  # todo: validate request (remove anything that should not exist in the request)
+  valid_keys = ['title', 'price', 'medium', 'artist']
+  for key in req.keys():
+    if key not in valid_keys:
+      del req[key]
+  # check that each key is the correct value type
+  artwork = Artwork(**req)
+  db.session.add(artwork)
+  db.session.commit()
   return json_response(status=201)

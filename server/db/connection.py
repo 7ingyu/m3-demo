@@ -1,3 +1,8 @@
-from flask_pymongo import PyMongo
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
 
-mongo = PyMongo()
+class Base(DeclarativeBase):
+  pass
+
+db = SQLAlchemy(model_class=Base)

@@ -2,8 +2,8 @@ import os
 from flask import (
   Flask, Blueprint, send_from_directory, session, g
 )
-from flask_pymongo import PyMongo
 from flask_json import FlaskJSON
+from flask_migrate import Migrate
 
 def create_app(test_config=None):
   # create and configure the app
@@ -27,9 +27,10 @@ def create_app(test_config=None):
     pass
 
   # DATABASE
-  from .db.connection import mongo
-  app.config["MONGO_URI"] = os.environ.get("MONGO_URI")
-  mongo.init_app(app)
+  from .db.connection import db
+  app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("POSTGRES_URI")
+  db.init_app(app)
+  migrate = Migrate(app, db)
 
   # JSON ENCODING
   json = FlaskJSON(app)

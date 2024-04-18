@@ -6,7 +6,8 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_json import json_response
 
-from ..db.connection import mongo
+from ..db.connection import db
+from ..db.models.user import User
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -23,22 +24,31 @@ def register():
     error = 'Password is required.'
 
   if error is None:
-    user = mongo.db.users.find_one({
-      'username': username,
-    })
+    user = db.session.execute(
+      db
+        .select(User)
+        .where(User.username == username)
+    ).scalar()
+    print(user)
+    # mongo.db.users.find_one({
+    #   'username': username,
+    # })
     if user is None:
-      user_id = str(mongo.db.users.insert_one({
-        'username': username,
-        'password': generate_password_hash(password)
-      }).inserted_id)
+      user = User(
+          username=username,
+          password=generate_password_hash(password),
+      )
+      db.session.add(user)
+      db.session.commit()
       session.clear()
-      session['user_id'] = user_id
-      return json_response(id=user_id, status=201)
+      session['user_id'] = user.id
+      return json_response(id=user.id, status=201)
     else:
       error = f"User {username} is already registered."
       return json_response(error=error, status=400)
   flash(error)
 
+# TO DO: Implement login
 @bp.post('/login')
 def login():
   username = request.form['username']
@@ -73,7 +83,7 @@ def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
-            return redirect(url_for('auth.login'))
+            return redirect('/register')
 
         return view(**kwargs)
 

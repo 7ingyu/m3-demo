@@ -4,4 +4,4 @@ instance/*
 server/static
 .venv
 client/node_modules
-*/.env*
+*.env*

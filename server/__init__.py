@@ -1,6 +1,6 @@
 import os
 from flask import (
-  Flask, Blueprint, send_from_directory
+  Flask, Blueprint, send_from_directory, session, g
 )
 from flask_pymongo import PyMongo
 from flask_json import FlaskJSON
@@ -44,9 +44,21 @@ def create_app(test_config=None):
       return send_from_directory('static', path)
 
   from .routes import auth
+  from .routes import artwork
 
   api = Blueprint('api', __name__, url_prefix='/api')
+
+  # @api.before_app_request
+  # def load_logged_in_user():
+  #     user_id = session.get('user_id')
+
+  #     if user_id is None:
+  #         g.user = None
+  #     else:
+  #         g.user = mongo.db.users.find_one({'_id': user_id})
+
   api.register_blueprint(auth.bp)
+  api.register_blueprint(artwork.bp)
   app.register_blueprint(api)
 
   return app

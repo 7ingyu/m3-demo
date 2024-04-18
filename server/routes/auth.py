@@ -10,15 +10,6 @@ from ..db.connection import mongo
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-@bp.before_app_request
-def load_logged_in_user():
-    user_id = session.get('user_id')
-
-    if user_id is None:
-        g.user = None
-    else:
-        g.user = mongo.db.users.find_one({'_id': user_id})
-
 @bp.post('/register')
 def register():
   req = request.get_json()
@@ -32,7 +23,6 @@ def register():
     error = 'Password is required.'
 
   if error is None:
-    print('getting user nowwww')
     user = mongo.db.users.find_one({
       'username': username,
     })

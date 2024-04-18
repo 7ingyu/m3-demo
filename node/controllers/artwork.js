@@ -10,8 +10,15 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   // todo: req.body validation
-  const newArtwork = await Artwork.create(req.body);
-  return res.json(newArtwork);
+  try {
+    const newArtwork = await Artwork.create(req.body);
+    return res.json(newArtwork);
+  } catch (e) {
+    if (e.message.includes('constraint')) {
+      return res.status(400).send('Invalid artist ID');
+    }
+    return res.status(500).send(e.message);
+  }
 })
 
 module.exports = router;

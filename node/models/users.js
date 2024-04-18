@@ -11,7 +11,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate({Artwork}) {
       // define association here
-      User.hasMany(Artwork)
+      User.hasMany(Artwork, {
+        foreignKey: 'artist',
+      })
     }
   }
   User.init({
@@ -21,7 +23,8 @@ module.exports = (sequelize, DataTypes) => {
     lastname: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'users',
+    modelName: 'User',
+    tableName: 'users',
   });
   return User;
 };

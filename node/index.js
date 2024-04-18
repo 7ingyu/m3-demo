@@ -1,6 +1,7 @@
-import 'dotenv/config'
-import express from 'express'
-import apiRouter from './controllers'
+require('dotenv').config()
+
+const express = require('express')
+const apiRouter = require('./controllers')
 
 const app = express()
 const PORT = process.env.PORT || 3000
